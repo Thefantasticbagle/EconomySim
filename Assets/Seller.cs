@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Seller : MonoBehaviour
@@ -20,60 +22,89 @@ public class Seller : MonoBehaviour
     /// </summary>
     void initPrizes()
     {
-        MinPrize *= Random.Range(0.5f, 1.0f);
-        ExpectedPrize = Random.Range(MinPrize, MinPrize * 2.0f);
+        MinPrize *= UnityEngine.Random.Range(0.5f, 1.0f);
+        ExpectedPrize = UnityEngine.Random.Range(MinPrize, MinPrize * 2.0f);
     }
 
     /// <summary>
     /// Makes a deal.
     /// </summary>
-    /// <param name="deal"></param>
+    /// <param name="getDeal"></param>
+    /// <param name="setDeal"></param>
     /// <param name="referred"></param>
-    public void MakeDeal(Deal deal, bool referred = false)
+    public void MakeDeal(Func<Deal> getDeal, Action<Deal> setDeal, bool referred = false)
     {
-        if (!referred) deal.Buyer.MakeDeal(deal, true);
+        Deal _deal = getDeal();
 
-        CurrentDeal = deal;
+        if (!referred) _deal.Buyer.MakeDeal(getDeal, setDeal, true);
+        else
+        {
+            _deal = getDeal();
+            _deal.Active = true;
+            setDeal(_deal);
+        }
+
+        CurrentDeal = _deal;
         ExpectedPrize = ExpectedPrize * UnityEngine.Random.Range(1.0f, 1.25f);
 
-        StartCoroutine(doDeal(deal));
+        StartCoroutine(doDeal(getDeal, setDeal));
     }
 
     /// <summary>
     /// Does a deal.
     /// </summary>
-    /// <param name="deal"></param>
+    /// <param name="getDeal"></param>
+    /// <param name="setDeal"></param>
     /// <returns></returns>
-    IEnumerator doDeal(Deal deal)
+    IEnumerator doDeal(Func<Deal> getDeal, Action<Deal> setDeal)
     {
-        Debug.Log($"Seller: Deal started with {deal.Buyer.name}");
+        Debug.Log($"Seller: Deal started with {getDeal().Buyer.name}");
 
-        // After a given amount of time, time out the deal
-        yield return new WaitForSeconds(10.0f);
-        CancelDeal(deal);
+        // Complete the deal after a small delay
+        yield return new WaitForSeconds(3.0f);
+
+        if (getDeal().Active) CancelDeal(getDeal, setDeal);
     }
 
     /// <summary>
     /// Cancels a given deal.
     /// </summary>
-    /// <param name="deal"></param>
-    public void CancelDeal(Deal deal, bool referred = false)
+    /// <param name="getDeal"></param>
+    /// <param name="setDeal"></param>
+    /// <param name="referred"></param>
+    public void CancelDeal(Func<Deal> getDeal, Action<Deal> setDeal, bool referred = false)
     {
-        Debug.Log($"Seller: Deal calcelled with {deal.Buyer.name}");
+        Deal _deal = getDeal();
+        Debug.Log($"Seller: Deal cancelled with {_deal.Buyer.name}");
 
         if (CurrentDeal != null) CurrentDeal = null;
-        if (!referred) deal.Buyer.CancelDeal(deal, true);
+        if (!referred) _deal.Buyer.CancelDeal(getDeal, setDeal, true);
+        else
+        {
+            _deal = getDeal();
+            _deal.Active = false;
+            setDeal(_deal);
+        }
     }
 
     /// <summary>
     /// Completes a given deal.
     /// </summary>
-    /// <param name="deal"></param>
-    public void CompleteDeal(Deal deal, bool referred = false)
+    /// <param name="getDeal"></param>
+    /// <param name="setDeal"></param>
+    /// <param name="referred"></param>
+    public void CompleteDeal(Func<Deal> getDeal, Action<Deal> setDeal, bool referred = false)
     {
-        Debug.Log($"Seller: Deal completed with {deal.Buyer.name}");
+        Deal _deal = getDeal();
+        Debug.Log($"Seller: Deal completed with {_deal.Buyer.name}");
 
         if (CurrentDeal != null) CurrentDeal = null;
-        if (!referred) deal.Buyer.CompleteDeal(deal, true);
+        if (!referred) _deal.Buyer.CompleteDeal(getDeal, setDeal, true);
+        else
+        {
+            _deal = getDeal();
+            _deal.Active = false;
+            setDeal(_deal);
+        }
     }
 }
