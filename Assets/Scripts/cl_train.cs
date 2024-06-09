@@ -8,7 +8,7 @@ public class cl_train : MonoBehaviour
     public GameObject rearConnector;
     public float forwardAcceleration = 20f;
     public float brakeForce = 30f;
-    public float turnRate = 40f;
+    public float turnRate = 100f;
     public float maxSpeed = 200f;
     public float currentSpeed = 0f;
     public float rotation = 0f;

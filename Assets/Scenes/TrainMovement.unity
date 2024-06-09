@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -695,15 +695,6 @@ MonoBehaviour:
   backConnector: {fileID: 90827189}
   targetCartRearPoint: {fileID: 1825446158}
   driveTrain: {fileID: 115691309}
-  lerpSpeed: 5
-  rotationSpeed: 5
-  offset: 2
-  minimumDistance: 0.2
-  maxDistance: 1
-  r: {x: 0, y: 0, z: 0}
-  s: {x: 0, y: 0, z: 0}
-  d: 0
-  d1: 0
 --- !u!4 &427003368
 Transform:
   m_ObjectHideFlags: 0
@@ -1013,15 +1004,6 @@ MonoBehaviour:
   backConnector: {fileID: 1776994471}
   targetCartRearPoint: {fileID: 90827189}
   driveTrain: {fileID: 115691309}
-  lerpSpeed: 5
-  rotationSpeed: 5
-  offset: 2
-  minimumDistance: 0.2
-  maxDistance: 1
-  r: {x: 0, y: 0, z: 0}
-  s: {x: 0, y: 0, z: 0}
-  d: 0
-  d1: 0
 --- !u!4 &587505981
 Transform:
   m_ObjectHideFlags: 0
@@ -1781,15 +1763,6 @@ MonoBehaviour:
   backConnector: {fileID: 905577190}
   targetCartRearPoint: {fileID: 373591936}
   driveTrain: {fileID: 115691309}
-  lerpSpeed: 5
-  rotationSpeed: 5
-  offset: 2
-  minimumDistance: 0.2
-  maxDistance: 1
-  r: {x: 0, y: 0, z: 0}
-  s: {x: 0, y: 0, z: 0}
-  d: 0
-  d1: 0
 --- !u!4 &923614326
 Transform:
   m_ObjectHideFlags: 0
@@ -1860,15 +1833,6 @@ MonoBehaviour:
   backConnector: {fileID: 2083738528}
   targetCartRearPoint: {fileID: 969334929}
   driveTrain: {fileID: 115691309}
-  lerpSpeed: 5
-  rotationSpeed: 5
-  offset: 2
-  minimumDistance: 0.2
-  maxDistance: 1
-  r: {x: 0, y: 0, z: 0}
-  s: {x: 0, y: 0, z: 0}
-  d: 0
-  d1: 0
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -1954,13 +1918,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.09229593, y: 0.7010574, z: -0.09229593, w: 0.7010574}
-  m_LocalPosition: {x: -140, y: 20, z: 0}
+  m_LocalRotation: {x: 0.19118108, y: 0.6807715, z: -0.19118108, w: 0.6807715}
+  m_LocalPosition: {x: -42.6, y: 20, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 115691308}
-  m_LocalEulerAnglesHint: {x: 15, y: 90, z: 0}
+  m_LocalEulerAnglesHint: {x: 31.373, y: 90, z: 0}
 --- !u!1 &969334928 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6227531898843247961, guid: 6f58d3d6f5815614faf3401aef47ddd7, type: 3}
@@ -2178,15 +2142,6 @@ MonoBehaviour:
   backConnector: {fileID: 1825446158}
   targetCartRearPoint: {fileID: 421084222}
   driveTrain: {fileID: 115691309}
-  lerpSpeed: 5
-  rotationSpeed: 5
-  offset: 2
-  minimumDistance: 0.2
-  maxDistance: 1
-  r: {x: 0, y: 0, z: 0}
-  s: {x: 0, y: 0, z: 0}
-  d: 0
-  d1: 0
 --- !u!4 &1013330538
 Transform:
   m_ObjectHideFlags: 0
@@ -2435,15 +2390,6 @@ MonoBehaviour:
   backConnector: {fileID: 969334929}
   targetCartRearPoint: {fileID: 1776994471}
   driveTrain: {fileID: 115691309}
-  lerpSpeed: 5
-  rotationSpeed: 5
-  offset: 2
-  minimumDistance: 0.2
-  maxDistance: 1
-  r: {x: 0, y: 0, z: 0}
-  s: {x: 0, y: 0, z: 0}
-  d: 0
-  d1: 0
 --- !u!1 &1255560615
 GameObject:
   m_ObjectHideFlags: 0
@@ -2477,15 +2423,6 @@ MonoBehaviour:
   backConnector: {fileID: 421084222}
   targetCartRearPoint: {fileID: 536452285}
   driveTrain: {fileID: 115691309}
-  lerpSpeed: 5
-  rotationSpeed: 5
-  offset: 2
-  minimumDistance: 0.2
-  maxDistance: 1
-  r: {x: 0, y: 0, z: 0}
-  s: {x: 0, y: 0, z: 0}
-  d: 0
-  d1: 0
 --- !u!4 &1255560617
 Transform:
   m_ObjectHideFlags: 0
@@ -3354,15 +3291,6 @@ MonoBehaviour:
   backConnector: {fileID: 536452285}
   targetCartRearPoint: {fileID: 905577190}
   driveTrain: {fileID: 115691309}
-  lerpSpeed: 5
-  rotationSpeed: 5
-  offset: 2
-  minimumDistance: 0.2
-  maxDistance: 1
-  r: {x: 0, y: 0, z: 0}
-  s: {x: 0, y: 0, z: 0}
-  d: 0
-  d1: 0
 --- !u!4 &2062631983
 Transform:
   m_ObjectHideFlags: 0
