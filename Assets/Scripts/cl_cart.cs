@@ -11,11 +11,9 @@ public class cl_cart : MonoBehaviour
     public Transform backConnector; 
     public Transform targetCartRearPoint;
     public cl_train driveTrain;
-    public float lerpSpeed = 10f;
-    public float rotationSpeed = 10f;
-    public float offset = 6f;
-    public float minimumDistance = 0.5f;
-    public float maxDistance = 1f;
+    private float rotationSpeed = 10f;
+    private float minimumDistance = 0.5f;
+    private float maxDistance = 0.001f;
     void Start()
     {
         if (targetCartRearPoint == null)
@@ -28,19 +26,23 @@ public class cl_cart : MonoBehaviour
     void Update()
     {
         if (targetCartRearPoint != null && 
-            minimumDistance < Vector3.Magnitude(frontConnector.transform.position - targetCartRearPoint.transform.position))
+            minimumDistance < Mathf.Abs(Vector3.Magnitude(targetCartRearPoint.transform.position-frontConnector.transform.position)))
         {
             RotateTowardsTarget();
             Vector3 directionToFrontPoint = (targetCartRearPoint.position - frontConnector.position);
-            if (maxDistance < directionToFrontPoint.magnitude)
+            if (maxDistance < Mathf.Abs(directionToFrontPoint.magnitude))
             {
-                Vector3 targetPosition = transform.position + (directionToFrontPoint.normalized * offset);
-                transform.position = Vector3.Slerp(transform.position, targetPosition, driveTrain.currentSpeed*Time.deltaTime);
+                Vector3 targetPosition = transform.position + directionToFrontPoint;
+                Vector3 SLURPA = Vector3.Slerp(transform.position, targetPosition, driveTrain.currentSpeed * Time.deltaTime);
+                Debug.Log(SLURPA.magnitude);
+                transform.position = SLURPA;//Vector3.Slerp(transform.position, targetPosition, driveTrain.currentSpeed * Time.deltaTime);
             }
         }
     }
     void RotateTowardsTarget()
     {
+
+        // 'Look at' Rotation
         Vector3 forward = frontConnector.position - transform.position;
         Vector3 directionToTarget = (targetCartRearPoint.position - backConnector.position).normalized;
         Vector3 axis = Vector3.Cross(forward, directionToTarget);
@@ -52,9 +54,11 @@ public class cl_cart : MonoBehaviour
 
         if (0.005f < radians)
         {
-            transform.rotation = Quaternion.Slerp(transform.rotation, rotationAmmount * transform.rotation, rotationSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.Slerp(transform.rotation, rotationAmmount * transform.rotation, (driveTrain.turnRate/10f) * Time.deltaTime);
         }
 
+
+        //Kebab rotation
         Vector3 v = targetCartRearPoint.transform.position - transform.position;
         Vector3 r = Quaternion.LookRotation(v, targetCartRearPoint.transform.up).eulerAngles;
         Vector3 s = Quaternion.LookRotation(v, transform.up).eulerAngles;
