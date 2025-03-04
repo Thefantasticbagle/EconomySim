@@ -63,12 +63,11 @@
     <Analyzer Include="/home/lars/Unity/Hub/Editor/2022.3.19f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets/SimpleSupplyDemand/Buyer.cs" />
     <Compile Include="Assets/Scripts/cl_train.cs" />
     <Compile Include="Assets/BarGraph.cs" />
     <Compile Include="Assets/Scripts/cl_cart.cs" />
-    <Compile Include="Assets/SimpleSupplyDemand/Seller.cs" />
-    <Compile Include="Assets/SimpleSupplyDemand/GameManager.cs" />
+    <Compile Include="Assets/Seller.cs" />
+    <Compile Include="Assets/Buyer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
@@ -940,7 +939,6 @@
     <ProjectReference Include="Unity.TextMeshPro.Editor.csproj" />
     <ProjectReference Include="Unity.2D.Aseprite.Editor.csproj" />
     <ProjectReference Include="Unity.VisualScripting.State.csproj" />
-    <ProjectReference Include="Unity.VSCode.Editor.csproj" />
     <ProjectReference Include="Unity.2D.SpriteShape.Editor.csproj" />
     <ProjectReference Include="Unity.2D.Tilemap.Editor.csproj" />
     <ProjectReference Include="Unity.2D.Animation.Editor.csproj" />

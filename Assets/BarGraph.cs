@@ -2,7 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
-using static BarGraph;
+// using static BarGraph;
+
+public static class DealObserver
+{
+    public static List<Deal> dealHistory = new List<Deal>();
+}
 
 public enum Layer
 {
@@ -38,6 +43,9 @@ public class BarGraph : MonoBehaviour
         { Layer.Orange, new Color(1.0f, 1.0f, 0.25f) },
     };
 
+    public int VisibleDealsCount = 50;
+    public int AverageOver       = 1;
+
     /// <summary>
     /// Pushes a set of bars to the bar graph.
     /// </summary>
@@ -50,6 +58,49 @@ public class BarGraph : MonoBehaviour
             if (barDict.ContainsKey(layer)) barDict[layer].Add(bar);
             else barDict[layer] = new List<Bar> { bar }; 
         }
+    }
+
+    public void FixedUpdate()
+    {
+        ResetBars();
+        PushDeals();
+        PrepareForRender();
+    }
+
+    public void PushDeals()
+    {
+        List<Deal> selectDeals = new List<Deal>();
+        List<Deal> staticDeals = DealObserver.dealHistory;
+        int staticDealsCount = staticDeals.Count;
+        if ( staticDealsCount <= 0 ) return;
+
+        for ( int i = 0; i < VisibleDealsCount; i++ )
+        {
+            if ( i >= staticDealsCount ) break;
+            selectDeals.Add( staticDeals[staticDealsCount - i - 1 ] );
+        }
+
+        List<float> buys = new List<float>();
+        List<float> sells = new List<float>();
+        int   runningCounter = 0;
+        float runningBuyAvg = 0.0f,
+              runningSellAvg = 0.0f;
+        foreach ( Deal deal in selectDeals )
+        {
+            runningBuyAvg += deal.BuyerExpected;
+            runningSellAvg += deal.SellerExpected;
+            runningCounter++;
+            if ( runningCounter % AverageOver == 0 )
+            {
+                buys.Add( runningBuyAvg / AverageOver );
+                sells.Add( runningSellAvg / AverageOver );
+                runningBuyAvg = 0.0f;
+                runningSellAvg = 0.0f;
+            }
+        }
+
+        PushBars(buys, Layer.Orange);
+        PushBars(sells, Layer.Blue);
     }
 
     /// <summary>
@@ -109,7 +160,7 @@ public class BarGraph : MonoBehaviour
                 bars[i] = bar;
             }
 
-            //barDict[layer] = bars;
+            // barDict[layer] = bars;
         }
     }
 }

@@ -50,6 +50,12 @@ public class Seller : MonoBehaviour
         StartCoroutine(doDeal(getDeal, setDeal));
     }
 
+    // public IEnumerator doTravel()
+    // {
+    //     Deal _deal = getDeal();
+    //     //Debug.Log($"Seller: Traveling to {}")
+    // }
+
     /// <summary>
     /// Does a deal.
     /// </summary>
@@ -58,9 +64,9 @@ public class Seller : MonoBehaviour
     /// <returns></returns>
     IEnumerator doDeal(Func<Deal> getDeal, Action<Deal> setDeal)
     {
-        Debug.Log($"Seller: Deal started with {getDeal().Buyer.name}");
+        //Debug.Log($"Seller: Deal started with {getDeal().Buyer.name}");
 
-        // Complete the deal after a small delay
+        // Travel to the seller
         yield return new WaitForSeconds(3.0f);
 
         if (getDeal().Active) CancelDeal(getDeal, setDeal);
@@ -75,7 +81,7 @@ public class Seller : MonoBehaviour
     public void CancelDeal(Func<Deal> getDeal, Action<Deal> setDeal, bool referred = false)
     {
         Deal _deal = getDeal();
-        Debug.Log($"Seller: Deal cancelled with {_deal.Buyer.name}");
+        //Debug.Log($"Seller: Deal cancelled with {_deal.Buyer.name}");
 
         if (CurrentDeal != null) CurrentDeal = null;
         if (!referred) _deal.Buyer.CancelDeal(getDeal, setDeal, true);
@@ -96,7 +102,7 @@ public class Seller : MonoBehaviour
     public void CompleteDeal(Func<Deal> getDeal, Action<Deal> setDeal, bool referred = false)
     {
         Deal _deal = getDeal();
-        Debug.Log($"Seller: Deal completed with {_deal.Buyer.name}");
+        //Debug.Log($"Seller: Deal completed with {_deal.Buyer.name}");
 
         if (CurrentDeal != null) CurrentDeal = null;
         if (!referred) _deal.Buyer.CompleteDeal(getDeal, setDeal, true);

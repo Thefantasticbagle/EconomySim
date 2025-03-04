@@ -12,6 +12,9 @@ public struct Deal
     public Seller   Seller;
     public Buyer    Buyer;
 
+    public float    SellerExpected,
+                    BuyerExpected;
+
     public float    Profit;
     public float    Risk;
 
@@ -42,6 +45,7 @@ public class Buyer : MonoBehaviour
             if (_deal != null)
             {
                 Deal deal = (Deal)_deal;
+                DealObserver.dealHistory.Add(deal);
                 MakeDeal( () => deal, (x) => deal = x );
             }
             else
@@ -59,7 +63,7 @@ public class Buyer : MonoBehaviour
     IEnumerator dealTimeout()
     {
         unableToDeal = true;
-        yield return new WaitForSeconds(UnityEngine.Random.Range(1.0f, 3.0f));
+        yield return new WaitForSeconds(UnityEngine.Random.Range(0.1f, 0.3f));
         unableToDeal = false;
     }
 
@@ -106,6 +110,8 @@ public class Buyer : MonoBehaviour
             Deal deal = new Deal();
             deal.Seller = seller;
             deal.Buyer  = this;
+            deal.SellerExpected = ExpectedPrize;
+            deal.BuyerExpected = seller.ExpectedPrize;
             deal.Profit = ExpectedPrize - seller.ExpectedPrize;
             deal.Risk   = 1.0f;
             deal.Active = false;
@@ -127,7 +133,7 @@ public class Buyer : MonoBehaviour
     Deal? pickDeal(List<Deal> deals)
     {
         if (!deals.Any()) return null;
-        return deals.Last();
+        return deals[ UnityEngine.Random.Range(0, deals.Count) ];
     }
 
     /// <summary>
@@ -143,12 +149,11 @@ public class Buyer : MonoBehaviour
         if (!referred) _deal.Seller.MakeDeal(getDeal, setDeal, true);
         else
         {
-            _deal = getDeal();
             _deal.Active = true;
             setDeal(_deal);
         } 
 
-        CurrentDeal = _deal;
+        CurrentDeal = getDeal();
         ExpectedPrize = ExpectedPrize / UnityEngine.Random.Range(1.0f, 1.25f);
         
         StartCoroutine( doDeal(getDeal, setDeal) );
@@ -163,12 +168,42 @@ public class Buyer : MonoBehaviour
     /// <returns></returns>
     IEnumerator doDeal(Func<Deal> getDeal, Action<Deal> setDeal)
     {
-        Debug.Log($"Buyer: Deal started with {getDeal().Seller.name}");
+        ////Debug.Log($"Buyer: Deal started with {getDeal().Seller.name}");
 
-        // Complete the deal after a small delay
+        // Start traveling coroutine followed by completing the deal
+        StartCoroutine( doTravel( getDeal, (_) => {
+            if ( getDeal().Active ) CompleteDeal(getDeal, setDeal);
+        }));
+
+        // Timeout
         yield return new WaitForSeconds(2.0f);
+        if ( getDeal().Active ) CancelDeal(getDeal, setDeal);
+    }
 
-        if (getDeal().Active) CompleteDeal(getDeal, setDeal);
+    IEnumerator doTravel(Func<Deal> getDeal, Action<Deal> then)
+    {
+        Deal _deal = getDeal();
+        GameObject seller = _deal.Seller.gameObject;
+        if ( seller == null ) yield break;
+        ////Debug.Log($"Buyer: Travel started towards {_deal.Seller.name}");
+
+        // Begin traveling towards the seller
+        GameObject buyer = gameObject;
+        float distance = 1000.0f;
+        while (distance > 0.5f && getDeal().Active)
+        {
+            Vector3 to = seller.transform.position - buyer.transform.position,
+                    toN = to.normalized;
+            distance = to.magnitude;
+            // For now, simply move in a straight line at a constant speed 
+            // Here we're assuming the seller doesn't move during the travel.
+            buyer.transform.position += toN * 10.0f * Time.deltaTime;
+            yield return false;
+        }
+
+        // Do 'then'
+        ////Debug.Log($"Buyer: Travel completed towards {_deal.Seller.name}");
+        then( _deal );
     }
 
     /// <summary>
@@ -180,7 +215,7 @@ public class Buyer : MonoBehaviour
     public void CancelDeal(Func<Deal> getDeal, Action<Deal> setDeal, bool referred = false)
     {
         Deal _deal = getDeal();
-        Debug.Log($"Buyer: Deal cancelled with {_deal.Seller.name}");
+        ////Debug.Log($"Buyer: Deal cancelled with {_deal.Seller.name}");
 
         if (CurrentDeal != null) CurrentDeal = null;
         if (!referred) _deal.Seller.CancelDeal(getDeal, setDeal, true);
@@ -201,7 +236,7 @@ public class Buyer : MonoBehaviour
     public void CompleteDeal(Func<Deal> getDeal, Action<Deal> setDeal, bool referred = false)
     {
         Deal _deal = getDeal();
-        Debug.Log($"Buyer: Deal completed with {_deal.Seller.name}");
+        ////Debug.Log($"Buyer: Deal completed with {_deal.Seller.name}");
 
         if (CurrentDeal != null) CurrentDeal = null;
         if (!referred) _deal.Seller.CompleteDeal(getDeal, setDeal, true);
@@ -212,7 +247,6 @@ public class Buyer : MonoBehaviour
             setDeal(_deal);
         }
 
-        unableToDeal = true;
         StartCoroutine(dealTimeout());
     }
 }
