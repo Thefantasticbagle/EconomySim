@@ -10,10 +10,22 @@ public class Seller : MonoBehaviour
                     ExpectedPrize = 1.5f;
     public Deal?    CurrentDeal = null;
 
+    private float   lastDealTime = -1.0f;
+    private bool    alive = true;
+    public  float   ImpatienceThreshold = 2.0f; // Time required since no deal til prices adjust
+    public  float   HeartbeatFrequency = 0.5f;  // heartbeats per second
+
     // Start is called before the first frame update
     void Start()
     {
         initPrizes();
+        resetDealTimer();
+        startHeartbeat();
+    }
+
+    void FixedUpdate()
+    {
+
     }
 
     /// <summary>
@@ -24,6 +36,31 @@ public class Seller : MonoBehaviour
     {
         MinPrize *= UnityEngine.Random.Range(0.5f, 1.0f);
         ExpectedPrize = UnityEngine.Random.Range(MinPrize, MinPrize * 2.0f);
+    }
+
+    private void startHeartbeat()
+    {
+        StartCoroutine(doHeartbeat(HeartbeatFrequency));
+    }
+
+    private IEnumerator doHeartbeat(float frequency)
+    {
+        while(alive)
+        {
+            yield return new WaitForSeconds(1.0f / frequency);
+            onHeartbeat();
+        }
+    }
+
+    private void onHeartbeat()
+    {
+        // Adjust prices based on time since last deal
+        float timeSinceLastDeal = MeasureDealTimer();
+        if (timeSinceLastDeal > ImpatienceThreshold)
+        {
+            ExpectedPrize = Mathf.Max( MinPrize, ExpectedPrize / UnityEngine.Random.Range(1.0f, 1.25f) );
+            resetDealTimer();
+        }
     }
 
     /// <summary>
@@ -47,7 +84,26 @@ public class Seller : MonoBehaviour
         CurrentDeal = _deal;
         ExpectedPrize = ExpectedPrize * UnityEngine.Random.Range(1.0f, 1.25f);
 
+        resetDealTimer();
         StartCoroutine(doDeal(getDeal, setDeal));
+    }
+
+
+    private float resetDealTimer()
+    {
+        // Measure time since previous deal was made
+        float curTime = Time.time;
+        float timeSinceLastDeal = curTime - lastDealTime;
+        if (lastDealTime <= 0.0f) timeSinceLastDeal = 0.0f;
+        lastDealTime = curTime;
+
+        return timeSinceLastDeal;
+    }
+
+    public float MeasureDealTimer()
+    {
+        // Measure time since previous deal was made
+        return Time.time - lastDealTime;
     }
 
     // public IEnumerator doTravel()
@@ -66,7 +122,7 @@ public class Seller : MonoBehaviour
     {
         //Debug.Log($"Seller: Deal started with {getDeal().Buyer.name}");
 
-        // Travel to the seller
+        // Timeout
         yield return new WaitForSeconds(3.0f);
 
         if (getDeal().Active) CancelDeal(getDeal, setDeal);
@@ -84,6 +140,7 @@ public class Seller : MonoBehaviour
         //Debug.Log($"Seller: Deal cancelled with {_deal.Buyer.name}");
 
         if (CurrentDeal != null) CurrentDeal = null;
+        if (_deal.Seller == null || _deal.Buyer == null) return;
         if (!referred) _deal.Buyer.CancelDeal(getDeal, setDeal, true);
         else
         {
@@ -105,6 +162,7 @@ public class Seller : MonoBehaviour
         //Debug.Log($"Seller: Deal completed with {_deal.Buyer.name}");
 
         if (CurrentDeal != null) CurrentDeal = null;
+        if (_deal.Seller == null || _deal.Buyer == null) return;
         if (!referred) _deal.Buyer.CompleteDeal(getDeal, setDeal, true);
         else
         {

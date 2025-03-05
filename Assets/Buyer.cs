@@ -28,7 +28,10 @@ public class Buyer : MonoBehaviour
     public Deal?    CurrentDeal = null;
 
     private bool    unableToDeal = false;
-
+    public float    MinDealTimeout = 1.0f;
+    public float    MaxDealTimeout = 3.0f;
+    public float    InteractRange = 0.1f;
+    public float    TravelSpeed = 5.0f;
     // Start is called before the first frame update
     void Start()
     {
@@ -63,7 +66,7 @@ public class Buyer : MonoBehaviour
     IEnumerator dealTimeout()
     {
         unableToDeal = true;
-        yield return new WaitForSeconds(UnityEngine.Random.Range(0.1f, 0.3f));
+        yield return new WaitForSeconds(UnityEngine.Random.Range(MinDealTimeout, MaxDealTimeout));
         unableToDeal = false;
     }
 
@@ -190,14 +193,16 @@ public class Buyer : MonoBehaviour
         // Begin traveling towards the seller
         GameObject buyer = gameObject;
         float distance = 1000.0f;
-        while (distance > 0.5f && getDeal().Active)
+        float dt = Time.deltaTime;
+        while (distance > InteractRange + TravelSpeed * dt && getDeal().Active && seller != null && buyer != null)
         {
             Vector3 to = seller.transform.position - buyer.transform.position,
                     toN = to.normalized;
             distance = to.magnitude;
             // For now, simply move in a straight line at a constant speed 
             // Here we're assuming the seller doesn't move during the travel.
-            buyer.transform.position += toN * 10.0f * Time.deltaTime;
+            buyer.transform.position += toN * TravelSpeed * dt;
+            dt = Time.deltaTime;
             yield return false;
         }
 
@@ -218,6 +223,7 @@ public class Buyer : MonoBehaviour
         ////Debug.Log($"Buyer: Deal cancelled with {_deal.Seller.name}");
 
         if (CurrentDeal != null) CurrentDeal = null;
+        if (_deal.Seller == null || _deal.Buyer == null) return;
         if (!referred) _deal.Seller.CancelDeal(getDeal, setDeal, true);
         else
         {
@@ -237,8 +243,8 @@ public class Buyer : MonoBehaviour
     {
         Deal _deal = getDeal();
         ////Debug.Log($"Buyer: Deal completed with {_deal.Seller.name}");
-
         if (CurrentDeal != null) CurrentDeal = null;
+        if (_deal.Seller == null || _deal.Buyer == null) return;
         if (!referred) _deal.Seller.CompleteDeal(getDeal, setDeal, true);
         else
         {
