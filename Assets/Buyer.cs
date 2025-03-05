@@ -16,9 +16,15 @@ public struct Deal
                     BuyerExpected;
 
     public float    Profit;
-    public float    Risk;
+    public float    Distance;
+    public float    Appeal;
 
     public bool     Active;
+
+    public void calcAppeal()
+    {
+        Appeal = Profit / Distance;
+    }
 }
 
 public class Buyer : MonoBehaviour
@@ -116,11 +122,14 @@ public class Buyer : MonoBehaviour
             deal.SellerExpected = ExpectedPrize;
             deal.BuyerExpected = seller.ExpectedPrize;
             deal.Profit = ExpectedPrize - seller.ExpectedPrize;
-            deal.Risk   = 1.0f;
+            deal.Distance = Vector3.Distance( seller.gameObject.transform.position, gameObject.transform.position );
             deal.Active = false;
 
+            // Calculate appeal of the deal
+            deal.calcAppeal();
+
             // (Deals which aren't profitable for the seller are not concidered)
-            if (deal.Profit > 0.0f) deals.Add(deal);
+            if (deal.Appeal > 0.0f) deals.Add(deal);
         }
 
         // Return
@@ -129,14 +138,29 @@ public class Buyer : MonoBehaviour
 
     /// <summary>
     /// Picks a deal out of a list of potential deals.
-    /// For now, naive approach: Pick the first available deal
     /// </summary>
     /// <param name="deals"></param>
     /// <returns></returns>
     Deal? pickDeal(List<Deal> deals)
     {
         if (!deals.Any()) return null;
-        return deals[ UnityEngine.Random.Range(0, deals.Count) ];
+
+        // Pick best deal
+        deals = deals.OrderByDescending( (x) => x.Appeal ).ToList();
+
+        // Do simple weighted choice on deals based on their 'Appeal'
+        // float sum = 0.0f;
+        // foreach ( var deal in deals ) sum += deal.Appeal;
+        //
+        // float choice = UnityEngine.Random.Range( 0.0f, sum );
+        // float runSum = 0.0f;
+        // foreach ( var deal in deals )
+        // {
+        //     runSum += deal.Appeal;
+        //     if ( runSum >= choice ) return deal;
+        // }
+
+        return deals[0];
     }
 
     /// <summary>
