@@ -23,9 +23,15 @@ public class Seller : MonoBehaviour
         startHeartbeat();
     }
 
-    void FixedUpdate()
+    private void visualizeExpectedPrize()
     {
+        SpriteRenderer renderer = GetComponent<SpriteRenderer>();
+        if (renderer == null) return;
 
+        float R = 1.0f / 2.0f * ExpectedPrize,
+              G = 0.0f,
+              B = 1.0f * (2.0f - ExpectedPrize);
+        renderer.color = new Color(R, G, B);
     }
 
     /// <summary>
@@ -61,6 +67,9 @@ public class Seller : MonoBehaviour
             ExpectedPrize = Mathf.Max( MinPrize, ExpectedPrize / UnityEngine.Random.Range(1.0f, 1.25f) );
             resetDealTimer();
         }
+
+        // Update color
+        visualizeExpectedPrize();
     }
 
     /// <summary>
