@@ -15,11 +15,13 @@ public class Seller : MonoBehaviour
     public  float   ImpatienceThreshold = 2.0f; // Time required since no deal til prices adjust
     public  float   HeartbeatFrequency = 0.5f;  // heartbeats per second
 
+    public List<Deal> deals = new List<Deal>();
+
     // Start is called before the first frame update
     void Start()
     {
         initPrizes();
-        resetDealTimer();
+        // resetDealTimer();
         startHeartbeat();
     }
 
@@ -60,124 +62,45 @@ public class Seller : MonoBehaviour
 
     private void onHeartbeat()
     {
-        // Adjust prices based on time since last deal
-        float timeSinceLastDeal = MeasureDealTimer();
-        if (timeSinceLastDeal > ImpatienceThreshold)
+        // If no Deals, make one out of thin air
+        if ( deals.Count <= 0 && lastDealTime <= 0.0f)
         {
-            ExpectedPrize = Mathf.Max( MinPrize, ExpectedPrize / UnityEngine.Random.Range(1.0f, 1.25f) );
-            resetDealTimer();
+            lastDealTime = 1.0f;
+            Deal deal = new Deal();
+            deal.Seller = this;
+            // deal.Active = false;
+
+            deals.Add( deal );
+        }
+
+        // If any deals not auctioned, auction them
+        for (int i = 0; i < deals.Count; i++)
+        {
+            if (TransactionManager.FindActiveAuction(deals[i]) >= 0) continue;
+
+            // Make option
+            Option option = new Option();
+            option.strike = UnityEngine.Random.Range(0.5f, 1.0f);
+            option.deal = deals[i];
+            option.duration = 10.0f;
+
+            // Put it up for auction
+            TransactionManager.CreateAuction( this, option, 3.0f );
         }
 
         // Update color
         visualizeExpectedPrize();
     }
 
-    /// <summary>
-    /// Makes a deal.
-    /// </summary>
-    /// <param name="getDeal"></param>
-    /// <param name="setDeal"></param>
-    /// <param name="referred"></param>
-    public void MakeDeal(Func<Deal> getDeal, Action<Deal> setDeal, bool referred = false)
+    public bool SubtractDeal( Deal deal )
     {
-        Deal _deal = getDeal();
-
-        if (!referred) _deal.Buyer.MakeDeal(getDeal, setDeal, true);
-        else
-        {
-            _deal = getDeal();
-            _deal.Active = true;
-            setDeal(_deal);
-        }
-
-        CurrentDeal = _deal;
-        ExpectedPrize = ExpectedPrize * UnityEngine.Random.Range(1.0f, 1.25f);
-
-        resetDealTimer();
-        StartCoroutine(doDeal(getDeal, setDeal));
+        if (!deals.Contains(deal)) return false;
+        deals.Remove( deal );
+        return true;
     }
 
-
-    private float resetDealTimer()
+    public void ReceiveMoney( float amount )
     {
-        // Measure time since previous deal was made
-        float curTime = Time.time;
-        float timeSinceLastDeal = curTime - lastDealTime;
-        if (lastDealTime <= 0.0f) timeSinceLastDeal = 0.0f;
-        lastDealTime = curTime;
-
-        return timeSinceLastDeal;
-    }
-
-    public float MeasureDealTimer()
-    {
-        // Measure time since previous deal was made
-        return Time.time - lastDealTime;
-    }
-
-    // public IEnumerator doTravel()
-    // {
-    //     Deal _deal = getDeal();
-    //     //Debug.Log($"Seller: Traveling to {}")
-    // }
-
-    /// <summary>
-    /// Does a deal.
-    /// </summary>
-    /// <param name="getDeal"></param>
-    /// <param name="setDeal"></param>
-    /// <returns></returns>
-    IEnumerator doDeal(Func<Deal> getDeal, Action<Deal> setDeal)
-    {
-        //Debug.Log($"Seller: Deal started with {getDeal().Buyer.name}");
-
-        // Timeout
-        yield return new WaitForSeconds(3.0f);
-
-        if (getDeal().Active) CancelDeal(getDeal, setDeal);
-    }
-
-    /// <summary>
-    /// Cancels a given deal.
-    /// </summary>
-    /// <param name="getDeal"></param>
-    /// <param name="setDeal"></param>
-    /// <param name="referred"></param>
-    public void CancelDeal(Func<Deal> getDeal, Action<Deal> setDeal, bool referred = false)
-    {
-        Deal _deal = getDeal();
-        //Debug.Log($"Seller: Deal cancelled with {_deal.Buyer.name}");
-
-        if (CurrentDeal != null) CurrentDeal = null;
-        if (_deal.Seller == null || _deal.Buyer == null) return;
-        if (!referred) _deal.Buyer.CancelDeal(getDeal, setDeal, true);
-        else
-        {
-            _deal = getDeal();
-            _deal.Active = false;
-            setDeal(_deal);
-        }
-    }
-
-    /// <summary>
-    /// Completes a given deal.
-    /// </summary>
-    /// <param name="getDeal"></param>
-    /// <param name="setDeal"></param>
-    /// <param name="referred"></param>
-    public void CompleteDeal(Func<Deal> getDeal, Action<Deal> setDeal, bool referred = false)
-    {
-        Deal _deal = getDeal();
-        //Debug.Log($"Seller: Deal completed with {_deal.Buyer.name}");
-
-        if (CurrentDeal != null) CurrentDeal = null;
-        if (_deal.Seller == null || _deal.Buyer == null) return;
-        if (!referred) _deal.Buyer.CompleteDeal(getDeal, setDeal, true);
-        else
-        {
-            _deal = getDeal();
-            _deal.Active = false;
-            setDeal(_deal);
-        }
+        // TODO: Add money.
     }
 }
