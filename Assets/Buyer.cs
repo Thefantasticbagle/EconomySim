@@ -19,6 +19,8 @@ public class Buyer : MonoBehaviour
     public List<Option> options = new();
     public List<Offer>  offers = new();
 
+    public Dictionary<Auction, List<OutbidDetails>> auctionOutbidDetails = new();
+
     // Start is called before the first frame update
     void Start()
     {
@@ -150,5 +152,66 @@ public class Buyer : MonoBehaviour
     public void ReceiveOption( Option option )
     {
         options.Add( option );
+    }
+
+    public void NotifyOutbid( OutbidDetails details )
+    {
+        Auction auction = details.auction;
+
+        // If we're already considering what our new bid should be for this auction,
+        // add the details to the existing entry and return.
+        if ( auctionOutbidDetails.ContainsKey( auction ) )
+        {
+            auctionOutbidDetails[auction].Add( details );
+            return;
+        }
+
+        auctionOutbidDetails[auction] = new List<OutbidDetails>{ details };
+        StartCoroutine( outbidRoutine( details.auction ) );
+    }
+
+    private IEnumerator outbidRoutine( Auction auction )
+    {
+        float expectedSecondsToResolve = auctionOutbidDetails[auction][0].remainingAuctionTime;
+
+        // Measure Auction Velocity
+        // ( wait half the remaining time, down to minimum of 1 second or the remaining time depending on which is greater )
+        float waitForSeconds = Mathf.Max(expectedSecondsToResolve / 2.0f, Mathf.Min( expectedSecondsToResolve - 0.1f, 1.0f ) );
+        yield return new WaitForSeconds( waitForSeconds );
+        float velocity = auctionOutbidDetails[auction].Count / waitForSeconds;
+
+        // Determine rest of variables. Since this happens in a single frame we can assume auctionOutbidDetails is constant.
+        List<OutbidDetails> allDetails = auctionOutbidDetails[ auction ];
+        
+        // Measure Auction volatility
+        // ( highest increase in bid )
+        float volatility = 0.0f;
+        float prevBid = allDetails[0].bid;
+        for ( int i = 1; i < allDetails.Count; i++ )
+        {
+            OutbidDetails curDetails = allDetails[i];
+            
+            float curBidDiff = curDetails.bid - prevBid;
+            if ( curBidDiff > volatility ) volatility = curBidDiff;
+            
+            prevBid = curDetails.bid;
+        }
+
+        // Determine the new bid, if any
+        float currentHighestBid = allDetails[allDetails.Count - 1].bid;
+        float myValueAssessment = auction.option.GetValueAssessment( this ); //* ExpectedPrizeModifier;
+        
+        // float bidIncrement = volatility * velocity;
+        float bidIncrement = Mathf.Min( volatility * velocity, currentHighestBid * 0.05f );
+        float newBid = currentHighestBid + bidIncrement;
+        
+        // Only bid if the new amount is still below our maximum valuation
+        if ( newBid <= myValueAssessment )
+        {
+            TransactionManager.PlaceBid( this, newBid, auction );
+        }
+        
+        // Clean up outbid details as we've processed them
+        auctionOutbidDetails.Remove( auction );
     }
 }

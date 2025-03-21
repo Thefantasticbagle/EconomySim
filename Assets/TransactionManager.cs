@@ -11,6 +11,18 @@ public interface IAuctionable
 }
 
 /// <summary>
+/// Contains details about an outbid event when a bidder is surpassed by a higher bid in an auction.
+/// </summary>
+public struct OutbidDetails
+{
+    public Auction  auction; 
+    public Buyer    bidder;
+    public float    bid;
+    public float    diff;
+    public float    remainingAuctionTime;
+}
+
+/// <summary>
 /// Struct for describing a potential deal.
 /// </summary>
 [System.Serializable]
@@ -70,9 +82,35 @@ public class Auction
 
     public Seller seller;
     public Option option;
-    public Dictionary<Buyer, float> bids = new();
+    public Dictionary<Buyer, float> bids { private set; get; } = new();
+    public List<KeyValuePair<Buyer, float>> bidsOrdered { private set; get;} = new();
 
+    public float startTime;
+    public float expectedResolveTime;
     public GameObject cancelledBy;
+
+    public void PlaceBid( Buyer bidder, float bid )
+    {
+        // If the bidder already has a bid in place, replace previous entry from bidsOrdered
+        if ( bids.ContainsKey(bidder) )
+        {
+            for ( int i = 0; i < bidsOrdered.Count; i++ )
+            {
+                KeyValuePair<Buyer, float> curBid = bidsOrdered[ i ];
+                // TODO: Bubble up more optimal than complete re-sort
+                if ( curBid.Key == bidder )
+                {
+                    bidsOrdered[i] = new KeyValuePair<Buyer, float>( bidder, bid );
+                    break;
+                }
+            }
+        }
+        else bidsOrdered.Add( new KeyValuePair<Buyer, float>( bidder, bid ) );
+
+        // Set new bid in lookup table and re-order list
+        bids[ bidder ] = bid;
+        bidsOrdered = bidsOrdered.OrderByDescending( (kvp) => kvp.Value ).ToList(); 
+    }
 }
 
 // --- TransactionManager
@@ -138,8 +176,11 @@ public class TransactionManager : MonoBehaviour
         return true;
     }
 
-    private static void RegisterAuction( Auction auction )
+    private static void RegisterAuction( Auction auction, float resolveAfterSeconds )
     {
+        auction.startTime = Time.time;
+        auction.expectedResolveTime = auction.startTime + resolveAfterSeconds;
+
         ActiveAuctions.Add( auction );
         OptionInAuction[ auction.option ] = true;
         DealInAuction[ auction.option.deal ] = true;
@@ -159,7 +200,7 @@ public class TransactionManager : MonoBehaviour
         auction.seller = seller;
         auction.option = option;
 
-        RegisterAuction( auction ); // Register right away rather than in the async function
+        RegisterAuction( auction, resolveAfterSeconds ); // Register right away rather than in the async function
         Instance.StartCoroutine( Instance.AuctionRoutine(auction, resolveAfterSeconds) );
     }
 
@@ -188,7 +229,7 @@ public class TransactionManager : MonoBehaviour
         // Resolve the auction
         auction.state = AuctionState.Resolving;
 
-        List<KeyValuePair<Buyer, float>> bidsOrdered = auction.bids.ToList().OrderByDescending( (kvp) => kvp.Value ).ToList(); // TODO: Use Linq
+        List<KeyValuePair<Buyer, float>> bidsOrdered = auction.bidsOrdered;
 
         int i = 0;
         bool bought = false;
@@ -241,11 +282,33 @@ public class TransactionManager : MonoBehaviour
         if ( !BuyerCanBid( bidder, auction ) ) return false;
 
         // Check if bid is lower than previously placed bid
-        if ( auction.bids.ContainsKey( bidder ) && auction.bids[bidder] <= bid ) return false;
+        if ( auction.bids.ContainsKey( bidder ) && bid <= auction.bids[bidder] ) return false;
 
-        // Place bid and return success
-        auction.bids[bidder] = bid;
+        // Place bid
+        auction.PlaceBid( bidder, bid );
 
+        // Notify those that were just out-bid
+        List<KeyValuePair<Buyer, float>> bidsOrdered = auction.bidsOrdered;
+        int curBidIdx = bidsOrdered.Count - 1;
+        KeyValuePair<Buyer, float> curBid = bidsOrdered[ curBidIdx ];
+
+        OutbidDetails curOutbidDetails;
+        curOutbidDetails.bidder = bidder;
+        curOutbidDetails.bid = bid;
+        curOutbidDetails.auction = auction;
+        curOutbidDetails.remainingAuctionTime = auction.expectedResolveTime - Time.time;
+
+        while ( curBid.Value < bid && curBidIdx > 0 )
+        {
+            curOutbidDetails.diff = bid - curBid.Value;
+
+            Buyer curBidder = curBid.Key;
+            curBidder.NotifyOutbid( curOutbidDetails );
+
+            curBid = bidsOrdered[ --curBidIdx ];
+        }
+
+        // Visualize
         VisualizeBid( auction, bid, bidder );
         return true;
     }
