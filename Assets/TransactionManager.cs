@@ -357,7 +357,7 @@ public class TransactionManager : MonoBehaviour
         }
 
         // Visualize
-        VisualizeBid( auction, bid, bidder );
+        // VisualizeBid( auction, bid, bidder );
         return true;
     }
 
@@ -367,7 +367,7 @@ public class TransactionManager : MonoBehaviour
             return false;
             
         // Calculate projectile size based on bid amount
-        float size = bid / 200.0f;
+        float size = bid / 700.0f;
         
         // Create the projectile
         GameObject projectile = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -377,7 +377,7 @@ public class TransactionManager : MonoBehaviour
         Renderer renderer = projectile.GetComponent<Renderer>();
         if (renderer != null)
         {
-            renderer.material.color = new Color(0.9f, 0.7f, 0.1f);
+            renderer.material.color = new Color( 0.1f, 0.9f, 0.5f );
         }
         
         // Position at bidder location (assuming auction has a bidder property)
@@ -394,7 +394,7 @@ public class TransactionManager : MonoBehaviour
     
     public IEnumerator AnimateProjectile(GameObject projectile, Vector3 start, Vector3 target)
     {
-        float duration = 3.0f;
+        float duration = 1.0f;
         float elapsed = 0f;
         
         while (elapsed < duration)

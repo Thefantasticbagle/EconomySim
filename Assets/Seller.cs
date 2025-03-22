@@ -57,6 +57,11 @@ public class Seller : MonoBehaviour
             onHeartbeat();
         }
     }
+    
+    public void FixedUpdate()
+    {
+        lastDealTime -= Time.deltaTime;
+    }
 
     private void onHeartbeat()
     {
@@ -83,7 +88,7 @@ public class Seller : MonoBehaviour
             option.duration = 10.0f;
 
             // Put it up for auction
-            TransactionManager.CreateAuction( this, option, 0.5f );
+            TransactionManager.CreateAuction( this, option, 3.0f );
         }
 
         // Update color
