@@ -1,14 +1,12 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Seller : MonoBehaviour
 {
     public float    MinPrize = 1.0f,
                     ExpectedPrize = 1.5f;
-    public Deal?    CurrentDeal = null;
+    public Deal     CurrentDeal = null;
 
     private float   lastDealTime = -1.0f;
     private bool    alive = true;

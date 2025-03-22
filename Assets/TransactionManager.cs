@@ -50,7 +50,7 @@ public class Deal : IAuctionable
     public bool TryCloseDeal()
     {
         // TODO: Make closing deal distance depend on not just buyer interact range
-        if ( Vector3.Distance( seller.transform.position, buyer.transform.position ) > buyer.InteractRange ) { Debug.LogWarning("Buyer attempted to complete deal, but was too far away!"); return false; }
+        if ( Vector3.Distance( seller.transform.position, buyer.transform.position ) > buyer.InteractRange ) { /*Debug.LogWarning("Buyer attempted to complete deal, but was too far away!");*/ return false; }
 
         // TODO: Transfer some stuff from Seller to Buyer at some abstract requirement
         state = DealState.Closed;
@@ -201,7 +201,7 @@ public class TransactionManager : MonoBehaviour
 
     public static int FindActiveAuction( Option option ){ return OptionInAuction.ContainsKey( option ) ? ActiveAuctions.FindIndex((x) => object.Equals(x.option, option) ) : -1; }
     public static int FindActiveAuction( Deal deal ){ return DealInAuction.ContainsKey( deal ) ? ActiveAuctions.FindIndex((x) => object.Equals(x.option.deal, deal)) : -1; }
-    public static bool CancelActiveAuction( Deal? _deal, Option? _option, Auction auction, GameObject source )
+    public static bool CancelActiveAuction( Deal _deal, Option _option, Auction auction, GameObject source )
     {
         // Try to find the auction with either the direct reference, via option, or via deal
         int auctionIndex = -1;

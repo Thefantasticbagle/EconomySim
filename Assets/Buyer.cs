@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class Buyer : MonoBehaviour
@@ -11,7 +10,7 @@ public class Buyer : MonoBehaviour
 
     // TODO: Move "trader"-relevant stuff like this into its own class
     // Buyers and Sellers should NOT be their own entities, but just parts of a transaction.
-    public Deal?    CurrentDeal = null;
+    public Deal     CurrentDeal = null;
     public bool     DoingDeal = false;
 
     private bool    unableToDeal = false;
@@ -173,13 +172,13 @@ public class Buyer : MonoBehaviour
         DoingDeal = true;
 
         // Travel
-        var travelRoutine = StartCoroutine( doTravel( deal.seller ) );
-        yield return travelRoutine;
+        while ( !deal.TryCloseDeal() )
+        {
+            var travelRoutine = StartCoroutine( doTravel( deal.seller ) );
+            yield return travelRoutine;
+        }
 
-        // Complete the Deal
-        if ( !deal.TryCloseDeal() ) { Debug.LogWarning("Buyer tried to close deal but closing deal failed!"); yield break; }
         DoingDeal = false;
-
         // TODO: Add deal complete for Buyer
     }
 
