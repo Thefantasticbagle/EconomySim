@@ -17,8 +17,8 @@ public enum Layer
 
 public class BarGraph : MonoBehaviour
 {
-    // A simple struct for what constitutes a "bar"
-    public struct Bar
+    // A simple class for what constitutes a "bar"
+    public class Bar
     {
         public float Height;
         public GameObject BarObject;
@@ -87,8 +87,8 @@ public class BarGraph : MonoBehaviour
               runningSellAvg = 0.0f;
         foreach ( Deal deal in selectDeals )
         {
-            runningBuyAvg += deal.BuyerExpected;
-            runningSellAvg += deal.SellerExpected;
+            runningBuyAvg += deal.buyerExpected;
+            runningSellAvg += deal.sellerExpected;
             runningCounter++;
             if ( runningCounter % AverageOver == 0 )
             {

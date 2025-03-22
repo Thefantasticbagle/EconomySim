@@ -22,39 +22,85 @@ public struct OutbidDetails
     public float    remainingAuctionTime;
 }
 
+public enum DealState
+{
+    Unassigned,
+    Active,
+    Closed,
+}
+
 /// <summary>
-/// Struct for describing a potential deal.
+/// Direct exchange agreement from Seller to Buyer, including delivery terms and conditions for closing the Deal.
+/// Could be as simple as "come close -> receive goods", or as complicated as "kill these bandits -> receive new Deal"
 /// </summary>
 [System.Serializable]
-public struct Deal : IAuctionable
+public class Deal : IAuctionable
 {
-    public Seller   Seller;
-    public Buyer    Buyer;
-
-    public float    SellerExpected,
-                    BuyerExpected;
+    public DealState  state;
+    public Seller     seller;
+    public Buyer      buyer;
+    public float      sellerExpected,
+                      buyerExpected;             
 
     public float GetValueAssessment( Buyer buyer )
     {
         return 10.0f;
     }
+
+    public bool TryCloseDeal()
+    {
+        // TODO: Make closing deal distance depend on not just buyer interact range
+        if ( Vector3.Distance( seller.transform.position, buyer.transform.position ) > buyer.InteractRange ) { Debug.LogWarning("Buyer attempted to complete deal, but was too far away!"); return false; }
+
+        // TODO: Transfer some stuff from Seller to Buyer at some abstract requirement
+        state = DealState.Closed;
+        return true;
+    }
 }
 
 [System.Serializable]
-public struct Option : IAuctionable
+/// <summary>
+/// The right - not obligation - to acquire a Deal for a given price (strike) within a set duration.
+/// </summary>
+public class Option : IAuctionable
 {
     public Deal     deal;
     public float    strike;
     public float    duration;
+    public float    purchasedAtTime;
+    public bool     beenExchanged;
 
     public float GetValueAssessment( Buyer buyer )
     {
         return (deal.GetValueAssessment( buyer ) - strike) * duration;
     }
+
+    public void BeginTimer()
+    {
+        purchasedAtTime = Time.time;
+        deal.state = DealState.Active;
+    }
+
+    public bool IsExchangable()
+    {
+        if ( Time.time - purchasedAtTime < duration ) return true;
+        return false;
+    }
+
+    public bool TryExchange( Buyer buyer )
+    {
+        if ( !IsExchangable() ){ Debug.LogWarning("Buyer tried to exchange option but it was not exchangable!"); return false; }
+        if ( !buyer.SubtractOption( this ) ) { Debug.LogWarning("Buyer tried to exchange option but did not have it in their inventory!"); return false; }
+        if ( !buyer.SubtractMoney( strike ) ) { Debug.LogWarning("Buyer tried to strike with missing funds!"); return false; }
+
+        buyer.ReceiveDeal( deal );
+        beenExchanged = true;
+        return true;
+    }
 }
 
 [System.Serializable]
-public struct Offer : IAuctionable
+public class Offer : IAuctionable
 {
     public Option option;
     public Buyer  recipient;
@@ -243,6 +289,7 @@ public class TransactionManager : MonoBehaviour
             offer.recipient.ReceiveOption( offer.option );
             auction.seller.ReceiveMoney( offer.premium );
 
+            auction.option.BeginTimer();
             bought = true;
         };
 

@@ -8,7 +8,11 @@ public class Buyer : MonoBehaviour
 {
     public float    MaxPrize = 2.0f,
                     ExpectedPrizeModifier = 1.0f;
+
+    // TODO: Move "trader"-relevant stuff like this into its own class
+    // Buyers and Sellers should NOT be their own entities, but just parts of a transaction.
     public Deal?    CurrentDeal = null;
+    public bool     DoingDeal = false;
 
     private bool    unableToDeal = false;
     public float    MinDealTimeout = 1.0f;
@@ -16,8 +20,9 @@ public class Buyer : MonoBehaviour
     public float    InteractRange = 0.1f;
     public float    TravelSpeed = 5.0f;
 
-    public List<Option> options = new();
-    public List<Offer>  offers = new();
+    public  List<Deal>    deals    =  new();
+    public  List<Option>  options  =  new();
+    public  List<Offer>   offers   =  new();
 
     public Dictionary<Auction, List<OutbidDetails>> auctionOutbidDetails = new();
 
@@ -29,27 +34,68 @@ public class Buyer : MonoBehaviour
 
     private void FixedUpdate()
     {
-        // If the Buyer doesn't have any active deal, try to buy one
         if ( CurrentDeal == null && !unableToDeal )
         {
-            if ( options.Count > 0 )
+            // If there are valid deals, look through for an actionable one and pick it
+            for ( int i = 0; i < deals.Count; i++ ) 
             {
-                // Look among owned options first
-
+                if (deals[i].state == DealState.Active) { CurrentDeal = deals[i]; break; }
             }
-            else
+
+            // If we still do not have an active deal, look for one
+            if ( CurrentDeal == null )
             {
-                // If no owned options, bid
-                List<Auction> activeAuctions = TransactionManager.ActiveAuctions;
-                for ( int i = 0; i < activeAuctions.Count; i++ )
+                if ( options.Count > 0 )
                 {
-                    Auction auction = activeAuctions[i];
-                    float bid = auction.option.GetValueAssessment( this ) * ExpectedPrizeModifier;
-                    if ( bid > 0 ) TransactionManager.PlaceBid( this, bid, auction );
+                    // ...either by picking a deal from our owned options
+                    // Select most profitable option from current location
+                    Option bestOption = options[ 0 ];
+                    float  bestOptionProfitability = bestOption.GetValueAssessment( this );
+                    for ( int i = 1; i < options.Count; i++ )
+                    {
+                        Option option = options[ i ];
+                        // (also check if the option is expired. If so, delete it from the list of options)
+                        if ( option.IsExchangable() )
+                        {
+                            // options.RemoveAt( i-- ); // Ehh should work but doesn't. whatever
+                            continue;
+                        }
+
+                        float profitability = option.GetValueAssessment( this );
+                        if ( profitability > bestOptionProfitability )
+                        {
+                            bestOption = option;
+                            bestOptionProfitability = profitability;
+                        }
+                    }
+
+                    // Purchase the most profitable Option so we have a Deal
+                    bestOption.TryExchange( this );
+                }
+                else
+                {
+                    // ...or, by bidding for new options
+                    List<Auction> activeAuctions = TransactionManager.ActiveAuctions;
+                    for ( int i = 0; i < activeAuctions.Count; i++ )
+                    {
+                        Auction auction = activeAuctions[i];
+                        float bid = auction.option.GetValueAssessment( this ) * ExpectedPrizeModifier;
+                        if ( bid > 0 ) TransactionManager.PlaceBid( this, bid, auction );
+                    }
                 }
             }
 
-            StartCoroutine( dealTimeout() );
+            StartCoroutine( dealTimeout() ); // To avoid spammy behavior
+        }
+        else
+        {
+            if ( !DoingDeal && CurrentDeal != null )
+            {
+                Deal deal = (Deal)CurrentDeal;
+                Debug.Log("SET DEAL");
+                if ( deal.state != DealState.Active ) { CurrentDeal = null; }
+                else StartCoroutine( doDeal( deal ) );
+            }
         }
     }
 
@@ -120,7 +166,24 @@ public class Buyer : MonoBehaviour
         // TransactionManager handles the exchange of money and assets.
         accept( offer );
         offers.Remove( offer );
-        StartCoroutine( doTravel( offer.option.deal.Seller ) );
+        // StartCoroutine( doTravel( offer.option.deal.Seller ) );
+    }
+
+    IEnumerator doDeal( Deal deal )
+    {
+        DoingDeal = true;
+
+        Debug.Log("TRAVELING");
+        // Travel
+        var travelRoutine = StartCoroutine( doTravel( deal.seller ) );
+        yield return travelRoutine;
+
+        // Complete the Deal
+        if ( !deal.TryCloseDeal() ) { Debug.LogWarning("Buyer tried to close deal but closing deal failed!"); yield break; }
+Debug.Log("CLOSING");
+        DoingDeal = false;
+
+        // TODO: Add deal complete for Buyer
     }
 
     IEnumerator doTravel( Seller seller )
@@ -149,9 +212,25 @@ public class Buyer : MonoBehaviour
         return true; // TODO: Add money.
     }
 
+    public bool SubtractOption( Option option )
+    {
+        if ( options.Contains( option ) )
+        {
+            options.Remove( option );
+            return true;
+        }
+        // TODO: Make subtractX functions work with database-transaction type style
+        return false;
+    }
+
     public void ReceiveOption( Option option )
     {
         options.Add( option );
+    }
+
+    public void ReceiveDeal( Deal deal )
+    {
+        deals.Add( deal );
     }
 
     public void NotifyOutbid( OutbidDetails details )

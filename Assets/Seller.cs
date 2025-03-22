@@ -67,8 +67,8 @@ public class Seller : MonoBehaviour
         {
             lastDealTime = 1.0f;
             Deal deal = new Deal();
-            deal.Seller = this;
-            // deal.Active = false;
+            deal.state = DealState.Unassigned;
+            deal.seller = this;
 
             deals.Add( deal );
         }
@@ -85,7 +85,7 @@ public class Seller : MonoBehaviour
             option.duration = 10.0f;
 
             // Put it up for auction
-            TransactionManager.CreateAuction( this, option, 3.0f );
+            TransactionManager.CreateAuction( this, option, 0.5f );
         }
 
         // Update color
