@@ -92,7 +92,6 @@ public class Buyer : MonoBehaviour
             if ( !DoingDeal && CurrentDeal != null )
             {
                 Deal deal = (Deal)CurrentDeal;
-                Debug.Log("SET DEAL");
                 if ( deal.state != DealState.Active ) { CurrentDeal = null; }
                 else StartCoroutine( doDeal( deal ) );
             }
@@ -173,14 +172,12 @@ public class Buyer : MonoBehaviour
     {
         DoingDeal = true;
 
-        Debug.Log("TRAVELING");
         // Travel
         var travelRoutine = StartCoroutine( doTravel( deal.seller ) );
         yield return travelRoutine;
 
         // Complete the Deal
         if ( !deal.TryCloseDeal() ) { Debug.LogWarning("Buyer tried to close deal but closing deal failed!"); yield break; }
-Debug.Log("CLOSING");
         DoingDeal = false;
 
         // TODO: Add deal complete for Buyer

@@ -290,6 +290,7 @@ public class TransactionManager : MonoBehaviour
             auction.seller.ReceiveMoney( offer.premium );
 
             auction.option.BeginTimer();
+            auction.option.deal.buyer = offer.recipient;
             bought = true;
         };
 

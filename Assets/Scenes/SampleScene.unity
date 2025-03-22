@@ -150,7 +150,7 @@ Transform:
   m_GameObject: {fileID: 36980058}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.31418163, w: 0.9493629}
-  m_LocalPosition: {x: 5.44, y: 11.94, z: 0}
+  m_LocalPosition: {x: 5.52, y: 9.03, z: 0}
   m_LocalScale: {x: 0.10293, y: 0.10216, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -222,11 +222,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxPrize: 2
   ExpectedPrizeModifier: 1
+  CurrentDeal:
+    state: 0
+    seller: {fileID: 0}
+    buyer: {fileID: 0}
+    sellerExpected: 0
+    buyerExpected: 0
   DoingDeal: 0
   MinDealTimeout: 0.1
   MaxDealTimeout: 0.5
   InteractRange: 0.3
-  TravelSpeed: 50
+  TravelSpeed: 5
   deals: []
   options: []
   offers: []
@@ -257,7 +263,7 @@ Transform:
   m_GameObject: {fileID: 73603668}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.31418163, w: 0.9493629}
-  m_LocalPosition: {x: -2.959999, y: 9.87, z: 0}
+  m_LocalPosition: {x: -2.8799992, y: 6.9600005, z: 0}
   m_LocalScale: {x: 0.10293, y: 0.10216, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -329,11 +335,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxPrize: 2
   ExpectedPrizeModifier: 1
+  CurrentDeal:
+    state: 0
+    seller: {fileID: 0}
+    buyer: {fileID: 0}
+    sellerExpected: 0
+    buyerExpected: 0
   DoingDeal: 0
   MinDealTimeout: 0.1
   MaxDealTimeout: 0.5
   InteractRange: 0.3
-  TravelSpeed: 50
+  TravelSpeed: 5
   deals: []
   options: []
   offers: []
@@ -542,7 +554,7 @@ Transform:
   m_GameObject: {fileID: 367000015}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.31418163, w: 0.9493629}
-  m_LocalPosition: {x: 4.3199997, y: 10.429999, z: 0}
+  m_LocalPosition: {x: 4.3999996, y: 7.52, z: 0}
   m_LocalScale: {x: 0.10293, y: 0.10216, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -614,11 +626,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxPrize: 2
   ExpectedPrizeModifier: 1
+  CurrentDeal:
+    state: 0
+    seller: {fileID: 0}
+    buyer: {fileID: 0}
+    sellerExpected: 0
+    buyerExpected: 0
   DoingDeal: 0
   MinDealTimeout: 0.1
   MaxDealTimeout: 0.5
   InteractRange: 0.3
-  TravelSpeed: 50
+  TravelSpeed: 5
   deals: []
   options: []
   offers: []
@@ -733,7 +751,7 @@ Transform:
   m_GameObject: {fileID: 417438066}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.31418163, w: 0.9493629}
-  m_LocalPosition: {x: -4.459999, y: 10.719999, z: 0}
+  m_LocalPosition: {x: -4.379999, y: 7.81, z: 0}
   m_LocalScale: {x: 0.10293, y: 0.10216, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -805,11 +823,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxPrize: 2
   ExpectedPrizeModifier: 1
+  CurrentDeal:
+    state: 0
+    seller: {fileID: 0}
+    buyer: {fileID: 0}
+    sellerExpected: 0
+    buyerExpected: 0
   DoingDeal: 0
   MinDealTimeout: 0.1
   MaxDealTimeout: 0.5
   InteractRange: 0.3
-  TravelSpeed: 50
+  TravelSpeed: 5
   deals: []
   options: []
   offers: []
@@ -840,7 +864,7 @@ Transform:
   m_GameObject: {fileID: 474228502}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.31418163, w: 0.9493629}
-  m_LocalPosition: {x: 0.5300007, y: 9.669999, z: 0}
+  m_LocalPosition: {x: 0.6100006, y: 6.7599998, z: 0}
   m_LocalScale: {x: 0.10293, y: 0.10216, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -912,11 +936,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxPrize: 2
   ExpectedPrizeModifier: 1
+  CurrentDeal:
+    state: 0
+    seller: {fileID: 0}
+    buyer: {fileID: 0}
+    sellerExpected: 0
+    buyerExpected: 0
   DoingDeal: 0
   MinDealTimeout: 0.1
   MaxDealTimeout: 0.5
   InteractRange: 0.3
-  TravelSpeed: 50
+  TravelSpeed: 5
   deals: []
   options: []
   offers: []
@@ -1162,6 +1192,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MinPrize: 1
   ExpectedPrize: 1.5
+  CurrentDeal:
+    state: 0
+    seller: {fileID: 0}
+    buyer: {fileID: 0}
+    sellerExpected: 0
+    buyerExpected: 0
   ImpatienceThreshold: 0.2
   HeartbeatFrequency: 5
   deals: []
@@ -1303,6 +1339,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MinPrize: 1
   ExpectedPrize: 1.5
+  CurrentDeal:
+    state: 0
+    seller: {fileID: 0}
+    buyer: {fileID: 0}
+    sellerExpected: 0
+    buyerExpected: 0
   ImpatienceThreshold: 0.2
   HeartbeatFrequency: 5
   deals: []
@@ -1333,7 +1375,7 @@ Transform:
   m_GameObject: {fileID: 945754529}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.31418163, w: 0.9493629}
-  m_LocalPosition: {x: 2.3000011, y: 9.809999, z: 0}
+  m_LocalPosition: {x: 2.380001, y: 6.9, z: 0}
   m_LocalScale: {x: 0.10293, y: 0.10216, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1405,11 +1447,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxPrize: 2
   ExpectedPrizeModifier: 1
+  CurrentDeal:
+    state: 0
+    seller: {fileID: 0}
+    buyer: {fileID: 0}
+    sellerExpected: 0
+    buyerExpected: 0
   DoingDeal: 0
   MinDealTimeout: 0.1
   MaxDealTimeout: 0.5
   InteractRange: 0.3
-  TravelSpeed: 50
+  TravelSpeed: 5
   deals: []
   options: []
   offers: []
@@ -1562,6 +1610,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MinPrize: 1
   ExpectedPrize: 1.5
+  CurrentDeal:
+    state: 0
+    seller: {fileID: 0}
+    buyer: {fileID: 0}
+    sellerExpected: 0
+    buyerExpected: 0
   ImpatienceThreshold: 0.2
   HeartbeatFrequency: 5
   deals: []
@@ -1784,6 +1838,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MinPrize: 1
   ExpectedPrize: 1.5
+  CurrentDeal:
+    state: 0
+    seller: {fileID: 0}
+    buyer: {fileID: 0}
+    sellerExpected: 0
+    buyerExpected: 0
   ImpatienceThreshold: 0.2
   HeartbeatFrequency: 5
   deals: []
@@ -1886,6 +1946,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MinPrize: 1
   ExpectedPrize: 1.5
+  CurrentDeal:
+    state: 0
+    seller: {fileID: 0}
+    buyer: {fileID: 0}
+    sellerExpected: 0
+    buyerExpected: 0
   ImpatienceThreshold: 0.2
   HeartbeatFrequency: 5
   deals: []
@@ -1916,7 +1982,7 @@ Transform:
   m_GameObject: {fileID: 1992760627}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.31418163, w: 0.9493629}
-  m_LocalPosition: {x: -5.379999, y: 12.089999, z: 0}
+  m_LocalPosition: {x: -5.299999, y: 9.18, z: 0}
   m_LocalScale: {x: 0.10293, y: 0.10216, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1988,11 +2054,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxPrize: 2
   ExpectedPrizeModifier: 1
+  CurrentDeal:
+    state: 0
+    seller: {fileID: 0}
+    buyer: {fileID: 0}
+    sellerExpected: 0
+    buyerExpected: 0
   DoingDeal: 0
   MinDealTimeout: 0.1
   MaxDealTimeout: 0.5
   InteractRange: 0.3
-  TravelSpeed: 50
+  TravelSpeed: 5
   deals: []
   options: []
   offers: []
@@ -2067,7 +2139,7 @@ Transform:
   m_GameObject: {fileID: 2106194450}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.31418163, w: 0.9493629}
-  m_LocalPosition: {x: -1.1299992, y: 9.669999, z: 0}
+  m_LocalPosition: {x: -1.0499992, y: 6.7599998, z: 0}
   m_LocalScale: {x: 0.10293, y: 0.10216, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2139,11 +2211,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxPrize: 2
   ExpectedPrizeModifier: 1
+  CurrentDeal:
+    state: 0
+    seller: {fileID: 0}
+    buyer: {fileID: 0}
+    sellerExpected: 0
+    buyerExpected: 0
   DoingDeal: 0
   MinDealTimeout: 0.1
   MaxDealTimeout: 0.5
   InteractRange: 0.3
-  TravelSpeed: 50
+  TravelSpeed: 5
   deals: []
   options: []
   offers: []
